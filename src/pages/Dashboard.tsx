@@ -32,6 +32,7 @@ const quickActions = [
 
 const Dashboard = () => {
   const today = new Date().toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const [tab, setTab] = useState<"overview" | "calendar">("overview");
 
   return (
     <AppLayout>
