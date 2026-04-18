@@ -11,6 +11,12 @@ import AddStudent from "./pages/AddStudent.tsx";
 import Fees from "./pages/Fees.tsx";
 import Results from "./pages/Results.tsx";
 import ReportCards from "./pages/ReportCards.tsx";
+import Staff from "./pages/Staff.tsx";
+import Classes from "./pages/Classes.tsx";
+import Subjects from "./pages/Subjects.tsx";
+import Attendance from "./pages/Attendance.tsx";
+import Settings from "./pages/Settings.tsx";
+import Support from "./pages/Support.tsx";
 import ParentLogin from "./pages/parent/ParentLogin.tsx";
 import ParentDashboard from "./pages/parent/ParentDashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -32,6 +38,12 @@ const App = () => (
           <Route path="/fees" element={<Fees />} />
           <Route path="/results" element={<Results />} />
           <Route path="/report-cards" element={<ReportCards />} />
+          <Route path="/staff" element={<Staff />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/subjects" element={<Subjects />} />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/support" element={<Support />} />
           <Route path="/parent" element={<ParentLogin />} />
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
