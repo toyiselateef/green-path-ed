@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Users, GraduationCap, Banknote, AlertTriangle, ArrowUpRight, ArrowRight,
   UserPlus, Receipt, CalendarCheck, FileText, MoreHorizontal, TrendingUp,
+  Calendar, BookOpen, Trophy, PartyPopper, Beaker, Megaphone, Download,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
