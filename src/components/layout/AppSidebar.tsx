@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Sparkles,
+  LifeBuoy,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -115,6 +116,14 @@ export function AppSidebar() {
         <SidebarGroup className="mt-2">
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="p-0 h-auto hover:bg-transparent">
+                  <NavLink to="/support" className={linkBase} activeClassName={linkActive}>
+                    <LifeBuoy className="h-[18px] w-[18px] shrink-0" />
+                    {!collapsed && <span>Support</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="p-0 h-auto hover:bg-transparent">
                   <NavLink to="/settings" className={linkBase} activeClassName={linkActive}>
