@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Users, GraduationCap, Banknote, AlertTriangle, ArrowUpRight, ArrowRight,
   UserPlus, Receipt, CalendarCheck, FileText, MoreHorizontal, TrendingUp,
+  Calendar, BookOpen, Trophy, PartyPopper, Beaker, Megaphone, Download,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +32,7 @@ const quickActions = [
 
 const Dashboard = () => {
   const today = new Date().toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const [tab, setTab] = useState<"overview" | "calendar">("overview");
 
   return (
     <AppLayout>
@@ -56,6 +59,37 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Tabs: Term Overview / Academic Calendar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="inline-flex items-center gap-1 rounded-2xl border border-border bg-card p-1 shadow-sm-soft">
+          {[
+            { id: "overview" as const, label: "Term Overview", icon: TrendingUp },
+            { id: "calendar" as const, label: "Academic Calendar", icon: Calendar },
+          ].map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`relative inline-flex items-center gap-2 rounded-xl px-4 h-9 text-xs font-semibold transition ${
+                  active ? "bg-gradient-brand text-white shadow-md-soft" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <t.icon className="h-3.5 w-3.5" />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+        <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 h-9 text-xs font-semibold text-foreground hover:bg-muted transition">
+          <Download className="h-3.5 w-3.5" /> Export {tab === "overview" ? "Report" : "Calendar"}
+        </button>
+      </div>
+
+      {tab === "calendar" && <AcademicCalendar />}
+
+      {tab === "overview" && (
+      <div className="animate-fade-in">
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         {kpis.map((k, i) => (
@@ -166,8 +200,138 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      </div>
+      )}
     </AppLayout>
   );
 };
+
+// ---------------- Academic Calendar ----------------
+const calendarEvents = [
+  { date: "Sep 15", title: "First Term begins", type: "Term", icon: BookOpen, tone: "accent" },
+  { date: "Sep 28", title: "PTA welcome assembly", type: "Meeting", icon: Megaphone, tone: "info" },
+  { date: "Oct 12", title: "Mid-term break begins", type: "Break", icon: PartyPopper, tone: "warning" },
+  { date: "Oct 16", title: "Resumption from mid-term", type: "Term", icon: BookOpen, tone: "accent" },
+  { date: "Oct 25", title: "PTA general meeting", type: "Meeting", icon: Megaphone, tone: "info" },
+  { date: "Nov 8", title: "Inter-house sports", type: "Event", icon: Trophy, tone: "warning" },
+  { date: "Nov 22", title: "Science & Tech Fair", type: "Event", icon: Beaker, tone: "info" },
+  { date: "Dec 1", title: "First Term Examinations begin", type: "Exam", icon: FileText, tone: "destructive" },
+  { date: "Dec 15", title: "Report cards published", type: "Term", icon: FileText, tone: "accent" },
+  { date: "Dec 19", title: "First Term ends · Carol service", type: "Term", icon: PartyPopper, tone: "accent" },
+];
+
+const toneClass: Record<string, string> = {
+  accent: "bg-accent/10 text-accent border-accent/20",
+  info: "bg-info/10 text-info border-info/25",
+  warning: "bg-warning/10 text-warning border-warning/25",
+  destructive: "bg-destructive/10 text-destructive border-destructive/25",
+};
+
+function AcademicCalendar() {
+  const today = new Date();
+  const month = today.toLocaleString("en-NG", { month: "long" });
+  const year = today.getFullYear();
+  const daysInMonth = new Date(year, today.getMonth() + 1, 0).getDate();
+  const startDay = new Date(year, today.getMonth(), 1).getDay();
+  const cells = Array.from({ length: 42 }, (_, i) => {
+    const d = i - startDay + 1;
+    return d >= 1 && d <= daysInMonth ? d : null;
+  });
+  const eventDays = new Set([12, 16, 25]); // demo highlights for current month
+
+  return (
+    <div className="animate-fade-in">
+      {/* Term progress hero */}
+      <div className="relative overflow-hidden rounded-3xl bg-card border border-border p-6 mb-6">
+        <div className="absolute inset-0 bg-mesh opacity-60" />
+        <div className="relative grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr_1fr] gap-5 items-center">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 text-accent px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest border border-accent/20">
+              <Calendar className="h-3 w-3" /> Current Term
+            </span>
+            <h2 className="mt-3 font-display text-2xl font-bold text-foreground">First Term · 2025/2026</h2>
+            <p className="text-sm text-muted-foreground mt-1">Sep 15, 2025 → Dec 19, 2025</p>
+          </div>
+          {[
+            { label: "Term Progress", value: "42%", sub: "39 of 95 days", pct: 42 },
+            { label: "Next Holiday", value: "Oct 12", sub: "in 8 days", pct: 100 },
+            { label: "Exams Begin", value: "Dec 1", sub: "in 58 days", pct: 30 },
+          ].map((s) => (
+            <div key={s.label} className="rounded-2xl border border-border bg-background/60 backdrop-blur p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</p>
+              <p className="mt-1 font-display text-xl font-bold text-foreground">{s.value}</p>
+              <p className="text-[11px] text-muted-foreground mb-2">{s.sub}</p>
+              <div className="h-1 rounded-full bg-muted overflow-hidden">
+                <div className="h-full bg-gradient-brand" style={{ width: `${s.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+        {/* Mini month grid */}
+        <div className="rounded-3xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-lg font-bold text-foreground">{month} {year}</h3>
+            <div className="flex items-center gap-3 text-[11px]">
+              <span className="inline-flex items-center gap-1.5 text-muted-foreground"><span className="h-2 w-2 rounded-full bg-accent" />Event</span>
+              <span className="inline-flex items-center gap-1.5 text-muted-foreground"><span className="h-2 w-2 rounded-full bg-gradient-brand" />Today</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => <div key={d}>{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-1.5">
+            {cells.map((d, i) => {
+              if (!d) return <div key={i} />;
+              const isToday = d === today.getDate();
+              const hasEvent = eventDays.has(d);
+              return (
+                <button
+                  key={i}
+                  className={`relative aspect-square rounded-xl text-sm font-semibold transition ${
+                    isToday
+                      ? "bg-gradient-brand text-white shadow-md-soft"
+                      : hasEvent
+                      ? "bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {d}
+                  {hasEvent && !isToday && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-accent" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Events timeline */}
+        <div className="rounded-3xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-lg font-bold text-foreground">Upcoming events</h3>
+            <button className="text-xs font-semibold text-accent story-link">All</button>
+          </div>
+          <div className="relative">
+            <div className="absolute left-[14px] top-2 bottom-2 w-px bg-gradient-to-b from-accent/40 via-border to-transparent" />
+            <ul className="space-y-3.5">
+              {calendarEvents.map((e) => (
+                <li key={e.title} className="relative flex items-start gap-3 pl-0">
+                  <span className={`relative z-10 grid h-7 w-7 place-items-center rounded-full border ${toneClass[e.tone]} shrink-0`}>
+                    <e.icon className="h-3.5 w-3.5" />
+                  </span>
+                  <div className="flex-1 min-w-0 -mt-0.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{e.date} · {e.type}</p>
+                    <p className="text-sm font-semibold text-foreground leading-snug truncate">{e.title}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default Dashboard;
