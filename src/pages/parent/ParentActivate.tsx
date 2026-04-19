@@ -120,7 +120,7 @@ const ParentActivate = () => {
           {step !== "success" && (
             <div className="flex items-center justify-center gap-2 mb-6">
               {dots.map((d) => {
-                const numStep = step === "success" ? 4 : (step as number);
+                const numStep = step as number;
                 const done = d < numStep;
                 const active = d === numStep;
                 return (
@@ -136,7 +136,7 @@ const ParentActivate = () => {
                     >
                       {done && <Check className="h-3 w-3" />}
                     </span>
-                    {d < 3 && <span className={`h-px w-6 ${d < (step as number) ? "bg-accent" : "bg-border"}`} />}
+                    {d < 3 && <span className={`h-px w-6 ${d < numStep ? "bg-accent" : "bg-border"}`} />}
                   </div>
                 );
               })}
