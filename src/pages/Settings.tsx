@@ -118,6 +118,8 @@ const Settings = () => {
 
           {active === "content" && <SchoolContentManager />}
 
+          {active === "parent-portal" && <ParentPortalPanel />}
+
           {active === "branding" && (
             <Panel title="Brand Colors" desc="These colors appear on parent portal headers and report cards.">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
