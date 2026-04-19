@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, Calendar, Hash, BookOpen, ChevronDown, Camera, Lock, RefreshCw, Eye, EyeOff, Sparkles, Briefcase, GraduationCap, X } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { toast } from "sonner";
 
 const roles = ["Principal", "Vice Principal (Academics)", "Vice Principal (Admin)", "Bursar", "Teacher", "Admin Staff", "Support Staff"];
 const subjectOptions = ["Mathematics", "English", "Physics", "Chemistry", "Biology", "Economics", "Geography", "Literature", "Civic Edu"];
@@ -11,6 +12,9 @@ const genId = () => "STF/" + new Date().getFullYear() + "/" + Math.floor(100 + M
 const genPwd = () => Math.random().toString(36).slice(2, 6) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
 
 const AddStaff = () => {
+  const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [gender, setGender] = useState<"Male" | "Female">("Male");
   const [role, setRole] = useState("Teacher");
   const [empType, setEmpType] = useState<"Full-time" | "Part-time" | "Contract">("Full-time");
@@ -20,8 +24,35 @@ const AddStaff = () => {
   const [welcomeEmail, setWelcomeEmail] = useState(true);
   const [subjects, setSubjects] = useState<string[]>(["Mathematics"]);
   const [classesAssigned, setClassesAssigned] = useState<string[]>(["JSS1A"]);
+  const [canApproveWaivers, setCanApproveWaivers] = useState(false);
+  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "", email: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const showSubjects = role === "Teacher" || role.startsWith("Vice Principal");
+  const isBursar = role === "Bursar";
+
+  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) setPhoto(URL.createObjectURL(f));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs: Record<string, string> = {};
+    if (!form.firstName.trim()) errs.firstName = "First name is required";
+    if (!form.lastName.trim()) errs.lastName = "Last name is required";
+    if (!role) errs.role = "Role is required";
+    if (!form.phone.trim()) errs.phone = "Phone number is required";
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      const first = Object.keys(errs)[0];
+      document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast.error("Please fill all required fields");
+      return;
+    }
+    toast.success("Staff member added successfully");
+    setTimeout(() => navigate("/staff"), 600);
+  };
 
   return (
     <AppLayout>
