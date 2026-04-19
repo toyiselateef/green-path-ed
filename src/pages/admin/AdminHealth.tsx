@@ -1,4 +1,5 @@
-import { Activity, Server, Database, HardDrive, Globe, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { useState } from "react";
+import { Activity, Server, Database, HardDrive, Globe, AlertTriangle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -39,6 +40,21 @@ const statusTone: Record<string, string> = {
 };
 
 const AdminHealth = () => {
+  const [pings, setPings] = useState([
+    { name: "Database", status: "Operational", latency: 12 },
+    { name: "AI Services", status: "Operational", latency: 45 },
+    { name: "WhatsApp Gateway", status: "Degraded", latency: 312 },
+  ]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setPings((p) => p.map((x) => ({ ...x, latency: Math.max(8, Math.round(x.latency * (0.7 + Math.random() * 0.6))) })));
+      setRefreshing(false);
+    }, 1500);
+  };
+
   return (
     <SuperAdminLayout>
       <PageHeader
@@ -66,6 +82,39 @@ const AdminHealth = () => {
             <p className="mt-1 text-xs text-muted-foreground">{m.sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Live ping widget */}
+      <div className="rounded-2xl border border-border bg-card p-5 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display text-base font-semibold text-foreground">Live service ping</h3>
+            <p className="text-xs text-muted-foreground">Synthetic checks every 30s</p>
+          </div>
+          <button onClick={refresh} disabled={refreshing} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card hover:bg-muted px-3 h-9 text-xs font-semibold transition disabled:opacity-60">
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} /> Refresh
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {pings.map((p) => {
+            const isOk = p.status === "Operational";
+            return (
+              <div key={p.name} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="relative grid h-2.5 w-2.5 place-items-center">
+                    <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping ${isOk ? "bg-accent" : "bg-warning"}`} />
+                    <span className={`relative h-2 w-2 rounded-full ${isOk ? "bg-accent" : "bg-warning"}`} />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{p.name}</span>
+                </div>
+                <div className="text-right">
+                  <p className="font-display text-sm font-bold text-foreground">{p.latency}ms</p>
+                  <p className={`text-[10px] font-semibold uppercase ${isOk ? "text-accent" : "text-warning"}`}>{p.status}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">

@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, Calendar, Hash, BookOpen, ChevronDown, Camera, Lock, RefreshCw, Eye, EyeOff, Sparkles, Briefcase, GraduationCap, X } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { toast } from "sonner";
 
 const roles = ["Principal", "Vice Principal (Academics)", "Vice Principal (Admin)", "Bursar", "Teacher", "Admin Staff", "Support Staff"];
 const subjectOptions = ["Mathematics", "English", "Physics", "Chemistry", "Biology", "Economics", "Geography", "Literature", "Civic Edu"];
@@ -11,6 +12,9 @@ const genId = () => "STF/" + new Date().getFullYear() + "/" + Math.floor(100 + M
 const genPwd = () => Math.random().toString(36).slice(2, 6) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
 
 const AddStaff = () => {
+  const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [gender, setGender] = useState<"Male" | "Female">("Male");
   const [role, setRole] = useState("Teacher");
   const [empType, setEmpType] = useState<"Full-time" | "Part-time" | "Contract">("Full-time");
@@ -20,8 +24,35 @@ const AddStaff = () => {
   const [welcomeEmail, setWelcomeEmail] = useState(true);
   const [subjects, setSubjects] = useState<string[]>(["Mathematics"]);
   const [classesAssigned, setClassesAssigned] = useState<string[]>(["JSS1A"]);
+  const [canApproveWaivers, setCanApproveWaivers] = useState(false);
+  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "", email: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const showSubjects = role === "Teacher" || role.startsWith("Vice Principal");
+  const isBursar = role === "Bursar";
+
+  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) setPhoto(URL.createObjectURL(f));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs: Record<string, string> = {};
+    if (!form.firstName.trim()) errs.firstName = "First name is required";
+    if (!form.lastName.trim()) errs.lastName = "Last name is required";
+    if (!role) errs.role = "Role is required";
+    if (!form.phone.trim()) errs.phone = "Phone number is required";
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      const first = Object.keys(errs)[0];
+      document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast.error("Please fill all required fields");
+      return;
+    }
+    toast.success("Staff member added successfully");
+    setTimeout(() => navigate("/staff"), 600);
+  };
 
   return (
     <AppLayout>
@@ -34,26 +65,35 @@ const AddStaff = () => {
         <p className="mt-1.5 text-sm text-muted-foreground">Create a profile and login for a new team member. Required fields are marked with <span className="text-destructive">*</span>.</p>
       </div>
 
-      <form className="rounded-2xl bg-card border border-border shadow-md overflow-hidden animate-fade-in-up">
+      <form onSubmit={handleSubmit} className="rounded-2xl bg-card border border-border shadow-md overflow-hidden animate-fade-in-up">
         {/* Section 1 */}
         <Section title="Personal Information" subtitle="How this person identifies and how they're verified.">
           <div className="flex items-start gap-6 mb-5">
-            <button type="button" className="group relative shrink-0">
-              <span className="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-input group-hover:border-accent transition">
-                <Camera className="h-6 w-6 text-muted-foreground group-hover:text-accent transition" />
-              </span>
+            <button type="button" onClick={() => fileRef.current?.click()} className="group relative shrink-0">
+              {photo ? (
+                <img src={photo} alt="Preview" className="h-24 w-24 rounded-full object-cover border-2 border-accent" />
+              ) : (
+                <span className="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-input group-hover:border-accent transition">
+                  <Camera className="h-6 w-6 text-muted-foreground group-hover:text-accent transition" />
+                </span>
+              )}
               <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-gradient-brand text-white shadow-md text-xs font-bold">+</span>
             </button>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhotoChange} />
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">Profile Photo</p>
               <p className="text-xs text-muted-foreground mt-1">Square image, at least 400×400px. JPG or PNG, max 2MB.</p>
-              <button type="button" className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-input bg-card px-3 h-8 text-xs font-medium hover:bg-muted transition">Upload Photo</button>
+              <button type="button" onClick={() => fileRef.current?.click()} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-input bg-card px-3 h-8 text-xs font-medium hover:bg-muted transition">Upload Photo</button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="First Name" required placeholder="Adewale" icon={User} />
-            <Field label="Last Name" required placeholder="Johnson" icon={User} />
+            <div id="field-firstName">
+              <Field label="First Name" required placeholder="Adewale" icon={User} value={form.firstName} onChange={(v) => setForm({ ...form, firstName: v })} error={errors.firstName} />
+            </div>
+            <div id="field-lastName">
+              <Field label="Last Name" required placeholder="Johnson" icon={User} value={form.lastName} onChange={(v) => setForm({ ...form, lastName: v })} error={errors.lastName} />
+            </div>
             <Field label="Date of Birth" type="date" icon={Calendar} />
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Gender</label>
@@ -121,6 +161,18 @@ const AddStaff = () => {
             )}
             <ChipPicker label="Classes Assigned" icon={GraduationCap} options={classOptions} selected={classesAssigned} onChange={setClassesAssigned} className="md:col-span-2" />
 
+            {isBursar && (
+              <button type="button" onClick={() => setCanApproveWaivers(!canApproveWaivers)} className="md:col-span-2 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/5 p-3.5 text-left transition">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Can approve fee waivers</p>
+                  <p className="text-xs text-muted-foreground">Allow this bursar to approve discounts and waivers without proprietor sign-off.</p>
+                </div>
+                <span className={`relative h-6 w-11 rounded-full transition ${canApproveWaivers ? "bg-gradient-brand" : "bg-muted"}`}>
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition ${canApproveWaivers ? "left-5" : "left-0.5"}`} />
+                </span>
+              </button>
+            )}
+
             <div className="md:col-span-2">
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Employment Type</label>
               <div className="inline-flex w-full rounded-xl border border-input bg-background p-1">
@@ -139,16 +191,17 @@ const AddStaff = () => {
         {/* Section 3 */}
         <Section title="Contact & Access" subtitle="Login credentials. Email becomes their username.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
+            <div id="field-phone">
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Phone Number <span className="text-destructive">*</span></label>
               <div className="group relative flex">
                 <span className="inline-flex items-center gap-1.5 rounded-l-xl border border-r-0 border-input bg-muted px-3 text-sm">
                   🇳🇬 <span className="font-medium">+234</span>
                 </span>
-                <input className="h-12 flex-1 rounded-r-xl border border-input bg-background px-3.5 text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition" placeholder="803 145 7821" />
+                <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={`h-12 flex-1 rounded-r-xl border bg-background px-3.5 text-sm focus:outline-none focus:ring-4 focus:ring-accent/15 transition ${errors.phone ? "border-destructive" : "border-input focus:border-accent"}`} placeholder="803 145 7821" />
               </div>
+              {errors.phone && <p className="mt-1 text-[11px] text-destructive font-medium">{errors.phone}</p>}
             </div>
-            <Field label="Email Address" required type="email" placeholder="adewale@school.com" icon={Mail} />
+            <Field label="Email Address" type="email" placeholder="adewale@school.com" icon={Mail} value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
 
             <div className="md:col-span-2">
               <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-foreground">
@@ -213,7 +266,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   );
 }
 
-function Field({ label, type = "text", placeholder, required, icon: Icon }: { label: string; type?: string; placeholder?: string; required?: boolean; icon?: React.ElementType }) {
+function Field({ label, type = "text", placeholder, required, icon: Icon, value, onChange, error }: { label: string; type?: string; placeholder?: string; required?: boolean; icon?: React.ElementType; value?: string; onChange?: (v: string) => void; error?: string }) {
   return (
     <div>
       <label className="mb-1.5 block text-xs font-semibold text-foreground">
@@ -221,8 +274,15 @@ function Field({ label, type = "text", placeholder, required, icon: Icon }: { la
       </label>
       <div className="group relative">
         {Icon && <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />}
-        <input type={type} placeholder={placeholder} className={`h-12 w-full rounded-xl border border-input bg-background ${Icon ? "pl-10" : "pl-3.5"} pr-3 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition`} />
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+          className={`h-12 w-full rounded-xl border bg-background ${Icon ? "pl-10" : "pl-3.5"} pr-3 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:ring-4 focus:ring-accent/15 transition ${error ? "border-destructive focus:border-destructive" : "border-input focus:border-accent"}`}
+        />
       </div>
+      {error && <p className="mt-1 text-[11px] text-destructive font-medium">{error}</p>}
     </div>
   );
 }
