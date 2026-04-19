@@ -146,9 +146,8 @@ const Fees = () => {
           </table>
         </div>
       </div>
-
-      </div>
       )}
+
 
       {/* Record Payment Modal — premium redesign */}
       {modal && <RecordPaymentModal invoice={modal} onClose={() => setModal(null)} />}
