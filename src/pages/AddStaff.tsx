@@ -191,16 +191,17 @@ const AddStaff = () => {
         {/* Section 3 */}
         <Section title="Contact & Access" subtitle="Login credentials. Email becomes their username.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
+            <div id="field-phone">
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Phone Number <span className="text-destructive">*</span></label>
               <div className="group relative flex">
                 <span className="inline-flex items-center gap-1.5 rounded-l-xl border border-r-0 border-input bg-muted px-3 text-sm">
                   🇳🇬 <span className="font-medium">+234</span>
                 </span>
-                <input className="h-12 flex-1 rounded-r-xl border border-input bg-background px-3.5 text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition" placeholder="803 145 7821" />
+                <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={`h-12 flex-1 rounded-r-xl border bg-background px-3.5 text-sm focus:outline-none focus:ring-4 focus:ring-accent/15 transition ${errors.phone ? "border-destructive" : "border-input focus:border-accent"}`} placeholder="803 145 7821" />
               </div>
+              {errors.phone && <p className="mt-1 text-[11px] text-destructive font-medium">{errors.phone}</p>}
             </div>
-            <Field label="Email Address" required type="email" placeholder="adewale@school.com" icon={Mail} />
+            <Field label="Email Address" type="email" placeholder="adewale@school.com" icon={Mail} value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
 
             <div className="md:col-span-2">
               <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-foreground">
