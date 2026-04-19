@@ -120,8 +120,9 @@ const ParentActivate = () => {
           {step !== "success" && (
             <div className="flex items-center justify-center gap-2 mb-6">
               {dots.map((d) => {
-                const done = step !== "success" && d < (step as number);
-                const active = d === step;
+                const numStep = step === "success" ? 4 : (step as number);
+                const done = d < numStep;
+                const active = d === numStep;
                 return (
                   <div key={d} className="flex items-center gap-2">
                     <span
