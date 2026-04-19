@@ -1,22 +1,34 @@
-import { LayoutDashboard, Building2, UserPlus, CreditCard, Activity, LogOut, Sparkles } from "lucide-react";
+import { LayoutDashboard, Building2, UserPlus, CreditCard, Activity, LogOut, Sparkles, Search } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-const nav = [
-  { title: "Overview", url: "/admin", icon: LayoutDashboard },
-  { title: "Schools", url: "/admin/schools", icon: Building2 },
-  { title: "Onboard School", url: "/admin/schools/new", icon: UserPlus },
-  { title: "Plans & Billing", url: "/admin/billing", icon: CreditCard },
-  { title: "Platform Health", url: "/admin/health", icon: Activity },
+const sections = [
+  {
+    label: "Operate",
+    items: [
+      { title: "Overview", url: "/admin", icon: LayoutDashboard, end: true },
+      { title: "Schools", url: "/admin/schools", icon: Building2 },
+      { title: "Onboard School", url: "/admin/schools/new", icon: UserPlus },
+    ],
+  },
+  {
+    label: "Revenue & Reliability",
+    items: [
+      { title: "Plans & Billing", url: "/admin/billing", icon: CreditCard },
+      { title: "Platform Health", url: "/admin/health", icon: Activity },
+    ],
+  },
 ];
 
 export function SuperAdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const navigate = useNavigate();
   const linkBase = "group/nav relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
   const linkActive = "!bg-gradient-brand !text-white shadow-md hover:!text-white";
 
@@ -34,38 +46,54 @@ export function SuperAdminSidebar() {
             </div>
           )}
         </div>
+
+        {!collapsed && (
+          <div className="mt-4 relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              placeholder="Quick jump…"
+              className="h-8 w-full rounded-lg border border-input bg-background pl-8 pr-2 text-xs focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition"
+            />
+            <kbd className="absolute right-1.5 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center rounded border border-border bg-muted px-1 py-0.5 text-[9px] font-medium text-muted-foreground">⌘K</kbd>
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent className="px-3">
-        <SidebarGroup>
-          {!collapsed && (
-            <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Platform
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-1">
-              {nav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="p-0 h-auto hover:bg-transparent">
-                    <NavLink to={item.url} end={item.url === "/admin"} className={linkBase} activeClassName={linkActive}>
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {sections.map((sec) => (
+          <SidebarGroup key={sec.label}>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {sec.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-1">
+                {sec.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild className="p-0 h-auto hover:bg-transparent">
+                      <NavLink to={item.url} end={item.end} className={linkBase} activeClassName={linkActive}>
+                        <item.icon className="h-[18px] w-[18px] shrink-0" />
+                        {!collapsed && <span className="truncate">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
 
         {!collapsed && (
-          <div className="mt-6 mx-1 rounded-2xl bg-gradient-brand p-4 text-white shadow-md relative overflow-hidden">
+          <div className="mt-4 mx-1 rounded-2xl bg-gradient-brand p-4 text-white shadow-md relative overflow-hidden">
             <div className="absolute inset-0 grid-pattern opacity-40" />
             <div className="relative">
               <Sparkles className="h-5 w-5 mb-2" />
-              <p className="text-sm font-semibold">Platform Status</p>
-              <p className="mt-1 text-xs text-white/75">All systems operational. 99.98% uptime this month.</p>
+              <p className="text-sm font-semibold">All systems normal</p>
+              <p className="mt-1 text-xs text-white/75">99.98% uptime · 240 schools live</p>
+              <Link to="/admin/health" className="mt-3 inline-flex text-[11px] font-semibold underline-offset-2 hover:underline">
+                View health →
+              </Link>
             </div>
           </div>
         )}
@@ -81,7 +109,12 @@ export function SuperAdminSidebar() {
             </div>
           )}
           {!collapsed && (
-            <button className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition" aria-label="Sign out">
+            <button
+              onClick={() => navigate("/admin/login")}
+              className="rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              aria-label="Sign out"
+              title="Sign out"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           )}

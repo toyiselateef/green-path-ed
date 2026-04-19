@@ -137,12 +137,20 @@ const Login = () => {
                 <div className="relative flex justify-center text-[11px] uppercase tracking-wider"><span className="bg-background px-3 text-muted-foreground">or</span></div>
               </div>
 
-              <Link
-                to="/parent"
-                className="block w-full text-center rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition"
-              >
-                I'm a parent — go to portal
-              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/parent"
+                  className="block w-full text-center rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition"
+                >
+                  Parent portal
+                </Link>
+                <Link
+                  to="/admin/login"
+                  className="block w-full text-center rounded-xl border border-accent/30 bg-accent/5 px-4 py-3 text-sm font-semibold text-accent hover:bg-accent/10 transition"
+                >
+                  Superadmin →
+                </Link>
+              </div>
             </form>
 
             <p className="mt-8 text-center text-xs text-muted-foreground">
