@@ -1,4 +1,5 @@
-import { Activity, Server, Database, HardDrive, Globe, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { useState } from "react";
+import { Activity, Server, Database, HardDrive, Globe, AlertTriangle, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -39,6 +40,21 @@ const statusTone: Record<string, string> = {
 };
 
 const AdminHealth = () => {
+  const [pings, setPings] = useState([
+    { name: "Database", status: "Operational", latency: 12 },
+    { name: "AI Services", status: "Operational", latency: 45 },
+    { name: "WhatsApp Gateway", status: "Degraded", latency: 312 },
+  ]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setPings((p) => p.map((x) => ({ ...x, latency: Math.max(8, Math.round(x.latency * (0.7 + Math.random() * 0.6))) })));
+      setRefreshing(false);
+    }, 1500);
+  };
+
   return (
     <SuperAdminLayout>
       <PageHeader
