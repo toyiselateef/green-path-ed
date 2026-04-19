@@ -175,4 +175,34 @@ const AdminBilling = () => {
   );
 };
 
+function RevenueBars() {
+  const data = [
+    { m: "Nov", v: 6.2 }, { m: "Dec", v: 6.8 }, { m: "Jan", v: 7.1 },
+    { m: "Feb", v: 7.6 }, { m: "Mar", v: 7.9 }, { m: "Apr", v: 8.4 },
+  ];
+  const max = Math.max(...data.map((d) => d.v));
+  return (
+    <div className="grid grid-cols-6 gap-3 items-end h-44">
+      {data.map((d) => {
+        const pct = (d.v / max) * 100;
+        return (
+          <div key={d.m} className="flex flex-col items-center gap-2 h-full">
+            <div className="flex-1 w-full flex items-end">
+              <div
+                className="w-full rounded-t-lg bg-gradient-to-t from-primary to-accent transition-all hover:opacity-80"
+                style={{ height: `${pct}%` }}
+                title={`₦${d.v}M`}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-bold text-foreground">₦{d.v}M</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{d.m}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default AdminBilling;
