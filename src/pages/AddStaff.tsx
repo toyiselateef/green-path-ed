@@ -65,26 +65,35 @@ const AddStaff = () => {
         <p className="mt-1.5 text-sm text-muted-foreground">Create a profile and login for a new team member. Required fields are marked with <span className="text-destructive">*</span>.</p>
       </div>
 
-      <form className="rounded-2xl bg-card border border-border shadow-md overflow-hidden animate-fade-in-up">
+      <form onSubmit={handleSubmit} className="rounded-2xl bg-card border border-border shadow-md overflow-hidden animate-fade-in-up">
         {/* Section 1 */}
         <Section title="Personal Information" subtitle="How this person identifies and how they're verified.">
           <div className="flex items-start gap-6 mb-5">
-            <button type="button" className="group relative shrink-0">
-              <span className="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-input group-hover:border-accent transition">
-                <Camera className="h-6 w-6 text-muted-foreground group-hover:text-accent transition" />
-              </span>
+            <button type="button" onClick={() => fileRef.current?.click()} className="group relative shrink-0">
+              {photo ? (
+                <img src={photo} alt="Preview" className="h-24 w-24 rounded-full object-cover border-2 border-accent" />
+              ) : (
+                <span className="grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-input group-hover:border-accent transition">
+                  <Camera className="h-6 w-6 text-muted-foreground group-hover:text-accent transition" />
+                </span>
+              )}
               <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-gradient-brand text-white shadow-md text-xs font-bold">+</span>
             </button>
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhotoChange} />
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">Profile Photo</p>
               <p className="text-xs text-muted-foreground mt-1">Square image, at least 400×400px. JPG or PNG, max 2MB.</p>
-              <button type="button" className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-input bg-card px-3 h-8 text-xs font-medium hover:bg-muted transition">Upload Photo</button>
+              <button type="button" onClick={() => fileRef.current?.click()} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-input bg-card px-3 h-8 text-xs font-medium hover:bg-muted transition">Upload Photo</button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="First Name" required placeholder="Adewale" icon={User} />
-            <Field label="Last Name" required placeholder="Johnson" icon={User} />
+            <div id="field-firstName">
+              <Field label="First Name" required placeholder="Adewale" icon={User} value={form.firstName} onChange={(v) => setForm({ ...form, firstName: v })} error={errors.firstName} />
+            </div>
+            <div id="field-lastName">
+              <Field label="Last Name" required placeholder="Johnson" icon={User} value={form.lastName} onChange={(v) => setForm({ ...form, lastName: v })} error={errors.lastName} />
+            </div>
             <Field label="Date of Birth" type="date" icon={Calendar} />
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Gender</label>
@@ -151,6 +160,18 @@ const AddStaff = () => {
               <ChipPicker label="Subjects Taught" icon={BookOpen} options={subjectOptions} selected={subjects} onChange={setSubjects} className="md:col-span-2" />
             )}
             <ChipPicker label="Classes Assigned" icon={GraduationCap} options={classOptions} selected={classesAssigned} onChange={setClassesAssigned} className="md:col-span-2" />
+
+            {isBursar && (
+              <button type="button" onClick={() => setCanApproveWaivers(!canApproveWaivers)} className="md:col-span-2 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/5 p-3.5 text-left transition">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Can approve fee waivers</p>
+                  <p className="text-xs text-muted-foreground">Allow this bursar to approve discounts and waivers without proprietor sign-off.</p>
+                </div>
+                <span className={`relative h-6 w-11 rounded-full transition ${canApproveWaivers ? "bg-gradient-brand" : "bg-muted"}`}>
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition ${canApproveWaivers ? "left-5" : "left-0.5"}`} />
+                </span>
+              </button>
+            )}
 
             <div className="md:col-span-2">
               <label className="mb-1.5 block text-xs font-semibold text-foreground">Employment Type</label>
