@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Building2, User, Mail, Phone, Globe, MapPin, Quote, Hash, Calendar, Sparkles, RefreshCw, ChevronDown, GraduationCap, Lock } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Building2, User, Mail, Phone, Globe, MapPin, Quote, Hash, Calendar, Sparkles, RefreshCw, ChevronDown, GraduationCap, Lock, CheckCircle2, Copy, Send } from "lucide-react";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const genPassword = () => Math.random().toString(36).slice(2, 6) + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
