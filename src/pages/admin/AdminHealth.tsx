@@ -84,6 +84,39 @@ const AdminHealth = () => {
         ))}
       </div>
 
+      {/* Live ping widget */}
+      <div className="rounded-2xl border border-border bg-card p-5 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display text-base font-semibold text-foreground">Live service ping</h3>
+            <p className="text-xs text-muted-foreground">Synthetic checks every 30s</p>
+          </div>
+          <button onClick={refresh} disabled={refreshing} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card hover:bg-muted px-3 h-9 text-xs font-semibold transition disabled:opacity-60">
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} /> Refresh
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {pings.map((p) => {
+            const isOk = p.status === "Operational";
+            return (
+              <div key={p.name} className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="relative grid h-2.5 w-2.5 place-items-center">
+                    <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping ${isOk ? "bg-accent" : "bg-warning"}`} />
+                    <span className={`relative h-2 w-2 rounded-full ${isOk ? "bg-accent" : "bg-warning"}`} />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">{p.name}</span>
+                </div>
+                <div className="text-right">
+                  <p className="font-display text-sm font-bold text-foreground">{p.latency}ms</p>
+                  <p className={`text-[10px] font-semibold uppercase ${isOk ? "text-accent" : "text-warning"}`}>{p.status}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* Sparkline-ish chart */}
         <div className="xl:col-span-2 rounded-2xl border border-border bg-card p-5">
