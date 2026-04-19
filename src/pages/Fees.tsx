@@ -1,9 +1,20 @@
 import { useState } from "react";
-import { Banknote, Wallet, AlertTriangle, Search, MoreHorizontal, X, Upload, CreditCard, Building, Banknote as Cash, Smartphone, Check, Receipt } from "lucide-react";
+import { Banknote, Wallet, AlertTriangle, Search, MoreHorizontal, X, Upload, CreditCard, Building, Banknote as Cash, Smartphone, Check, Receipt, FileText, MessageSquare, BadgeMinus, QrCode, Printer } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { FeeMatrix } from "@/components/fees/FeeMatrix";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
+} from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const summary = [
   { label: "Total Billed", value: "₦6,050,000", icon: Banknote, accent: "from-accent to-primary", bg: "bg-accent/10 text-accent" },
@@ -29,6 +40,8 @@ const statusClass = (s: string) =>
 const Fees = () => {
   const [active, setActive] = useState("Invoices");
   const [modal, setModal] = useState<typeof invoices[0] | null>(null);
+  const [viewInv, setViewInv] = useState<typeof invoices[0] | null>(null);
+  const [waiveInv, setWaiveInv] = useState<typeof invoices[0] | null>(null);
 
   return (
     <AppLayout>
@@ -134,9 +147,34 @@ const Fees = () => {
                             Record Payment
                           </button>
                         )}
-                        <button className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition outline-none">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            {balance > 0 && (
+                              <DropdownMenuItem onClick={() => setModal(inv)}>
+                                <Receipt className="h-4 w-4 mr-2" /> Record Payment
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={() => setViewInv(inv)}>
+                              <FileText className="h-4 w-4 mr-2" /> View Invoice
+                            </DropdownMenuItem>
+                            {balance > 0 && (
+                              <DropdownMenuItem onClick={() => toast.success(`WhatsApp reminder sent to parent of ${inv.name}`, { description: "+234 803 145 7821" })}>
+                                <MessageSquare className="h-4 w-4 mr-2" /> Send Reminder
+                              </DropdownMenuItem>
+                            )}
+                            {balance > 0 && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setWaiveInv(inv)} className="text-destructive focus:text-destructive">
+                                  <BadgeMinus className="h-4 w-4 mr-2" /> Waive Balance
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </td>
                   </tr>
@@ -151,6 +189,97 @@ const Fees = () => {
 
       {/* Record Payment Modal — premium redesign */}
       {modal && <RecordPaymentModal invoice={modal} onClose={() => setModal(null)} />}
+
+      {/* View Invoice Dialog */}
+      <Dialog open={!!viewInv} onOpenChange={(o) => !o && setViewInv(null)}>
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-0">
+          {viewInv && (
+            <>
+              <DialogHeader className="px-6 pt-6 pb-2">
+                <DialogTitle className="font-display">Invoice</DialogTitle>
+                <DialogDescription>BHS-INV-2025-{String(invoices.indexOf(viewInv) + 41).padStart(3, "0")}</DialogDescription>
+              </DialogHeader>
+              <div className="px-6 pb-6">
+                <div className="flex items-start justify-between border-b-2 border-primary pb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-brand text-white font-display text-xl font-bold">B</span>
+                    <div>
+                      <h2 className="font-display text-lg font-bold text-foreground">Brightstar High School</h2>
+                      <p className="text-[11px] text-muted-foreground">14, Admiralty Way, Lekki Phase 1, Lagos</p>
+                    </div>
+                  </div>
+                  <div className="text-right text-xs">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Issued</p>
+                    <p className="font-semibold text-foreground">{new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-4 text-xs">
+                  <div className="rounded-lg border border-border p-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Student</p>
+                    <p className="text-sm font-semibold text-foreground mt-0.5">{viewInv.name}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Adm. No.</p>
+                    <p className="text-sm font-semibold text-foreground mt-0.5">{viewInv.adm}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Class</p>
+                    <p className="text-sm font-semibold text-foreground mt-0.5">{viewInv.cls}</p>
+                  </div>
+                </div>
+
+                <table className="w-full text-sm mt-4 rounded-xl overflow-hidden border border-border">
+                  <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <tr><th className="py-2 px-3 text-left font-semibold">Item</th><th className="py-2 px-3 text-right font-semibold">Amount</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t border-border"><td className="py-2.5 px-3">{viewInv.cat} · First Term</td><td className="py-2.5 px-3 text-right tabular-nums">{fmt(viewInv.due)}</td></tr>
+                    <tr className="border-t border-border bg-secondary/30"><td className="py-2.5 px-3 text-muted-foreground">Paid</td><td className="py-2.5 px-3 text-right text-accent font-semibold tabular-nums">- {fmt(viewInv.paid)}</td></tr>
+                    <tr className="border-t-2 border-primary"><td className="py-3 px-3 font-bold">Balance Due</td><td className="py-3 px-3 text-right font-display text-lg font-bold text-foreground tabular-nums">{fmt(viewInv.due - viewInv.paid)}</td></tr>
+                  </tbody>
+                </table>
+
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-dashed border-border bg-muted/20 p-3">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Pay via USSD or scan</p>
+                    <p className="text-xs text-foreground mt-0.5 font-mono">*737*000*{viewInv.due - viewInv.paid}#</p>
+                  </div>
+                  <span className="grid h-16 w-16 place-items-center rounded-lg bg-card border-2 border-dashed border-border text-muted-foreground">
+                    <QrCode className="h-8 w-8" />
+                  </span>
+                </div>
+              </div>
+              <DialogFooter className="px-6 py-4 border-t border-border bg-muted/20">
+                <button onClick={() => setViewInv(null)} className="rounded-xl border border-border bg-card px-4 h-10 text-sm font-semibold hover:bg-muted">Close</button>
+                <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-4 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition">
+                  <Printer className="h-4 w-4" /> Print
+                </button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Waive Balance Confirmation */}
+      <AlertDialog open={!!waiveInv} onOpenChange={(o) => !o && setWaiveInv(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Waive remaining balance?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {waiveInv && (
+                <>This will mark <span className="font-semibold text-foreground">{fmt(waiveInv.due - waiveInv.paid)}</span> as waived for {waiveInv.name}. The action will appear in the audit log and cannot be undone without proprietor approval.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (waiveInv) toast.success(`Balance waived for ${waiveInv.name}`); setWaiveInv(null); }}>
+              Waive balance
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
@@ -328,7 +457,7 @@ function RecordPaymentModal({ invoice, onClose }: { invoice: typeof invoices[0];
           <div className="flex gap-2">
             <button onClick={onClose} className="rounded-xl border border-border bg-card px-4 h-10 text-sm font-semibold hover:bg-muted transition">Cancel</button>
             <button
-              onClick={onClose}
+              onClick={() => { toast.success(`Payment of ${fmt(amount)} recorded for ${invoice.name}`); onClose(); }}
               className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-5 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition"
             >
               <Check className="h-4 w-4" /> Confirm Payment

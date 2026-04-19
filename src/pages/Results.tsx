@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Save, Eraser, Download } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Row { name: string; adm: string; ca1: number | ""; ca2: number | ""; exam: number | ""; remark: string }
 
@@ -20,19 +25,46 @@ const grade = (t: number) => t >= 75 ? "A" : t >= 65 ? "B" : t >= 55 ? "C" : t >
 const gradeColor = (g: string) =>
   g === "A" ? "badge-soft-green" : g === "B" ? "badge-soft-blue" : g === "C" || g === "D" ? "badge-soft-amber" : "badge-soft-red";
 
+const COLS = ["ca1", "ca2", "exam"] as const;
+type Col = typeof COLS[number];
+
 const Results = () => {
   const [rows, setRows] = useState<Row[]>(initial);
+  const [confirmClear, setConfirmClear] = useState<number | null>(null);
+  const inputsRef = useRef<Record<string, HTMLInputElement | null>>({});
+
   const update = (i: number, k: keyof Row, v: any) => {
     setRows(prev => prev.map((r, idx) => idx === i ? { ...r, [k]: v } : r));
   };
+  const clearRow = (i: number) => {
+    setRows(prev => prev.map((r, idx) => idx === i ? { ...r, ca1: "", ca2: "", exam: "", remark: "" } : r));
+    toast.success("Row cleared");
+  };
   const filled = rows.filter(r => r.ca1 !== "" && r.ca2 !== "" && r.exam !== "").length;
   const pct = (filled / rows.length) * 100;
+  const anyFilled = rows.some(r => r.ca1 !== "" || r.ca2 !== "" || r.exam !== "");
+
+  const focusCell = (rowIdx: number, col: Col) => {
+    const el = inputsRef.current[`${rowIdx}-${col}`];
+    if (el) { el.focus(); el.select(); }
+  };
+
+  const handleKey = (e: React.KeyboardEvent, rowIdx: number, col: Col) => {
+    if (e.key !== "Tab" || e.shiftKey) return;
+    const colIdx = COLS.indexOf(col);
+    if (colIdx < COLS.length - 1) {
+      e.preventDefault();
+      focusCell(rowIdx, COLS[colIdx + 1]);
+    } else if (rowIdx < rows.length - 1) {
+      e.preventDefault();
+      focusCell(rowIdx + 1, COLS[0]);
+    }
+  };
 
   return (
     <AppLayout>
       <PageHeader title="Results Entry" subtitle="Enter scores quickly with auto-grading and Excel-like keyboard nav." badge="Academic" />
 
-      {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <select className="h-11 rounded-xl border border-input bg-card px-3 text-sm font-medium focus:outline-none focus:border-accent">
           <option>First Term 2025/2026</option>
@@ -48,7 +80,24 @@ const Results = () => {
         </button>
       </div>
 
-      {/* Progress bar */}
+      {/* Bulk action bar */}
+      {anyFilled && (
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-3 mb-4 flex items-center gap-3 animate-fade-in">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-brand text-white">
+            <Save className="h-4 w-4" />
+          </span>
+          <p className="text-sm text-foreground flex-1">
+            <span className="font-semibold">{filled}</span> of {rows.length} students have complete scores.
+          </p>
+          <button
+            onClick={() => toast.success("Scores saved", { description: "JSS2A · Mathematics · First Term" })}
+            className="rounded-xl bg-gradient-brand text-white px-4 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition"
+          >
+            Save All Scores
+          </button>
+        </div>
+      )}
+
       <div className="rounded-2xl bg-card border border-border p-5 mb-5 animate-fade-in-up">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -62,7 +111,6 @@ const Results = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="rounded-2xl bg-card border border-border overflow-hidden animate-fade-in-up">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -77,6 +125,7 @@ const Results = () => {
                 <th className="py-3 px-2 text-center font-semibold">Total<span className="block text-[9px] font-normal text-muted-foreground">/100</span></th>
                 <th className="py-3 px-3 text-center font-semibold">Grade</th>
                 <th className="py-3 px-3 font-semibold">Remark</th>
+                <th className="py-3 px-3 w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -90,11 +139,27 @@ const Results = () => {
                     <td className="py-2.5 px-5 text-muted-foreground tabular-nums">{i + 1}</td>
                     <td className="py-2.5 px-3 font-semibold text-foreground">{r.name}</td>
                     <td className="py-2.5 px-3 text-muted-foreground">{r.adm}</td>
-                    <CellInput value={r.ca1} max={30} onChange={(v) => update(i, "ca1", v)} />
-                    <CellInput value={r.ca2} max={30} onChange={(v) => update(i, "ca2", v)} />
-                    <CellInput value={r.exam} max={40} onChange={(v) => update(i, "exam", v)} />
+                    {COLS.map((col) => {
+                      const max = col === "exam" ? 40 : 30;
+                      const val = r[col];
+                      const over = val !== "" && Number(val) > max;
+                      return (
+                        <td key={col} className="py-2.5 px-2 text-center">
+                          <input
+                            ref={(el) => { inputsRef.current[`${i}-${col}`] = el; }}
+                            type="number"
+                            value={val}
+                            min={0}
+                            title={over ? `Max: ${max}` : undefined}
+                            onChange={(e) => update(i, col, e.target.value === "" ? "" : Number(e.target.value))}
+                            onKeyDown={(e) => handleKey(e, i, col)}
+                            className={`h-9 w-16 rounded-lg border bg-transparent text-center text-sm font-medium tabular-nums focus:outline-none focus:bg-card focus:ring-2 transition ${over ? "border-destructive bg-destructive/5 text-destructive ring-destructive/20" : "border-transparent focus:border-accent focus:ring-accent/15"}`}
+                          />
+                        </td>
+                      );
+                    })}
                     <td className={`py-2.5 px-2 text-center font-bold tabular-nums ${hasAny ? totalColor : "text-muted-foreground/40"}`}>
-                      {hasAny ? total : "—"}
+                      {hasAny ? Math.min(total, 100) : "—"}
                     </td>
                     <td className="py-2.5 px-3 text-center">
                       {hasAny ? (
@@ -109,6 +174,15 @@ const Results = () => {
                         className="h-9 w-full rounded-lg border border-transparent bg-transparent px-2 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/15 transition"
                       />
                     </td>
+                    <td className="py-2.5 px-3 text-right">
+                      <button
+                        onClick={() => setConfirmClear(i)}
+                        title="Clear row"
+                        className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+                      >
+                        <Eraser className="h-3.5 w-3.5" />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -117,45 +191,43 @@ const Results = () => {
         </div>
       </div>
 
-      {/* Sticky bottom action bar */}
       <div className="sticky bottom-4 mt-6 z-20">
         <div className="glass rounded-2xl shadow-elegant px-4 py-3 flex flex-wrap items-center gap-3">
           <p className="text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">{filled}</span> of {rows.length} ready · auto-saved 3s ago
           </p>
           <div className="ml-auto flex items-center gap-2">
-            <button className="inline-flex items-center gap-1.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground px-3 h-10 transition">
+            <button onClick={() => toast("Excel export coming soon")} className="inline-flex items-center gap-1.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground px-3 h-10 transition">
               <Download className="h-3.5 w-3.5" /> Export to Excel
             </button>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-input bg-card px-4 h-10 text-sm font-medium text-foreground hover:bg-muted transition">
+            <button onClick={() => { setRows(initial.map(r => ({ ...r, ca1: "", ca2: "", exam: "", remark: "" }))); toast.success("All scores cleared"); }} className="inline-flex items-center gap-1.5 rounded-xl border border-input bg-card px-4 h-10 text-sm font-medium text-foreground hover:bg-muted transition">
               <Eraser className="h-3.5 w-3.5" /> Clear All
             </button>
-            <button className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-5 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition">
+            <button onClick={() => toast.success("Scores saved", { description: "JSS2A · Mathematics · First Term" })} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-5 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition">
               <Save className="h-3.5 w-3.5" /> Save All Results
             </button>
           </div>
         </div>
       </div>
+
+      <AlertDialog open={confirmClear !== null} onOpenChange={(o) => !o && setConfirmClear(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear this row?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove all scores and remark for {confirmClear !== null ? rows[confirmClear].name : ""}. You can re-enter them anytime.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (confirmClear !== null) clearRow(confirmClear); setConfirmClear(null); }}>
+              Clear row
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
-
-function CellInput({ value, max, onChange }: { value: number | ""; max: number; onChange: (v: number | "") => void }) {
-  return (
-    <td className="py-2.5 px-2 text-center">
-      <input
-        type="number"
-        max={max}
-        min={0}
-        value={value}
-        onChange={(e) => {
-          const v = e.target.value === "" ? "" : Math.min(Number(e.target.value), max);
-          onChange(v as any);
-        }}
-        className="h-9 w-16 rounded-lg border border-transparent bg-transparent text-center text-sm font-medium tabular-nums focus:outline-none focus:border-accent focus:bg-card focus:ring-2 focus:ring-accent/15 transition"
-      />
-    </td>
-  );
-}
 
 export default Results;

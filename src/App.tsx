@@ -19,6 +19,7 @@ import Settings from "./pages/Settings.tsx";
 import Support from "./pages/Support.tsx";
 import ParentLogin from "./pages/parent/ParentLogin.tsx";
 import ParentDashboard from "./pages/parent/ParentDashboard.tsx";
+import ParentActivate from "./pages/parent/ParentActivate.tsx";
 import AddStaff from "./pages/AddStaff.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminOverview from "./pages/admin/AdminOverview.tsx";
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/content" element={<Navigate to="/settings" replace />} />
           <Route path="/fee-structures" element={<Navigate to="/fees" replace />} />
           <Route path="/parent" element={<ParentLogin />} />
+          <Route path="/parent/activate" element={<ParentActivate />} />
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminOverview />} />

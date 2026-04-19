@@ -1,13 +1,22 @@
 import { useState } from "react";
-import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check, FileText } from "lucide-react";
+import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check, FileText, Users, Copy, QrCode, Download, Send, AlertTriangle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SchoolContentManager } from "@/components/content/SchoolContentManager";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+} from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const tabs = [
   { id: "school", label: "School Profile", icon: School },
   { id: "academic", label: "Academic Year", icon: Calendar },
   { id: "content", label: "School Content", icon: FileText },
+  { id: "parent-portal", label: "Parent Portal", icon: Users },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "billing", label: "Billing & Plan", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -108,6 +117,8 @@ const Settings = () => {
           )}
 
           {active === "content" && <SchoolContentManager />}
+
+          {active === "parent-portal" && <ParentPortalPanel />}
 
           {active === "branding" && (
             <Panel title="Brand Colors" desc="These colors appear on parent portal headers and report cards.">
@@ -239,6 +250,133 @@ const Toggle = ({ title, desc, defaultChecked }: { title: string; desc: string; 
         <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm-soft transition ${on ? "left-[22px]" : "left-0.5"}`} />
       </button>
     </div>
+  );
+};
+
+const ParentPortalPanel = () => {
+  const [enabled, setEnabled] = useState(true);
+  const [selfActivate, setSelfActivate] = useState(true);
+  const [requireOtp, setRequireOtp] = useState(true);
+  const [otpExpiry, setOtpExpiry] = useState(10);
+  const [showFee, setShowFee] = useState(true);
+  const [showResults, setShowResults] = useState(true);
+  const [showNotices, setShowNotices] = useState(true);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [confirmBlast, setConfirmBlast] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const link = "https://edplix.app/brightstar/parent";
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    toast.success("Link copied");
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <>
+      <Panel title="Portal Status" desc="Control whether parents can sign in to their portal.">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Enable parent portal for this school</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Parents will use the portal to view fees, results and school notices.</p>
+          </div>
+          <button onClick={() => setEnabled(!enabled)} className={`relative h-6 w-11 rounded-full transition shrink-0 ${enabled ? "bg-gradient-brand" : "bg-muted"}`} aria-pressed={enabled}>
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm-soft transition ${enabled ? "left-[22px]" : "left-0.5"}`} />
+          </button>
+        </div>
+        {!enabled && (
+          <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-warning/30 bg-warning/5 p-3 animate-fade-in">
+            <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+            <p className="text-xs text-foreground">Parents will not be able to log in while the portal is disabled.</p>
+          </div>
+        )}
+      </Panel>
+
+      <Panel title="Activation Settings" desc="How parents set up their accounts.">
+        <Toggle title="Allow parents to self-activate" desc="If off, only an admin can generate parent credentials." defaultChecked={selfActivate} />
+        <Toggle title="Require OTP verification during activation" desc="Adds a 6-digit code step to confirm the parent's phone number." defaultChecked={requireOtp} />
+        <div className="flex items-center justify-between gap-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">OTP expiry duration</p>
+            <p className="text-xs text-muted-foreground mt-0.5">How long an OTP remains valid after being sent.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number" min={1} max={60} value={otpExpiry}
+              onChange={(e) => setOtpExpiry(Math.max(1, Math.min(60, Number(e.target.value) || 1)))}
+              className="h-9 w-20 rounded-lg border border-border bg-background px-3 text-sm font-semibold text-center focus:outline-none focus:border-accent"
+            />
+            <span className="text-xs text-muted-foreground">minutes</span>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel title="Portal Appearance" desc="Choose what parents can see on their dashboard.">
+        <Toggle title="Show fee balance on parent dashboard" desc="Outstanding amounts and payment history." defaultChecked={showFee} />
+        <Toggle title="Show results on parent dashboard" desc="Termly grades, scores and report cards." defaultChecked={showResults} />
+        <Toggle title="Show school notices on parent dashboard" desc="Announcements, events and circulars." defaultChecked={showNotices} />
+      </Panel>
+
+      <Panel title="Parent Access Link" desc="Share this link with parents to access their portal.">
+        <div className="flex items-center gap-2">
+          <input readOnly value={link} className="h-11 flex-1 rounded-xl border border-border bg-muted/30 px-3.5 text-sm font-mono text-foreground focus:outline-none" />
+          <button onClick={copyLink} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 h-11 text-xs font-semibold hover:bg-muted transition">
+            {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+          <button onClick={() => setQrOpen(true)} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 h-11 text-xs font-semibold hover:bg-muted transition">
+            <QrCode className="h-4 w-4" /> QR Code
+          </button>
+        </div>
+      </Panel>
+
+      <Panel title="Bulk Actions" desc="Mass-manage parent access for your school.">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => toast.success("CSV exported", { description: "parent-credentials.csv (342 rows)" })} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 h-10 text-sm font-semibold hover:bg-muted transition">
+            <Download className="h-4 w-4" /> Export parent credentials CSV
+          </button>
+          <button onClick={() => setConfirmBlast(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-4 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition">
+            <Send className="h-4 w-4" /> Send activation links to all parents
+          </button>
+        </div>
+      </Panel>
+
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Parent Portal QR Code</DialogTitle>
+            <DialogDescription>Print and display this QR at the school gate or in the PTA newsletter.</DialogDescription>
+          </DialogHeader>
+          <div className="grid place-items-center py-6">
+            <div className="grid h-56 w-56 place-items-center rounded-2xl border-2 border-dashed border-border bg-muted/30 text-muted-foreground">
+              <div className="text-center">
+                <QrCode className="mx-auto h-16 w-16" />
+                <p className="mt-2 text-xs">QR code will be generated here</p>
+              </div>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-muted-foreground font-mono break-all">{link}</p>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmBlast} onOpenChange={setConfirmBlast}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send activation links to all parents?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will send WhatsApp messages to all 342 parents. Continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => toast.success("Activation links sent to 342 parents")}>
+              Send to all
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
