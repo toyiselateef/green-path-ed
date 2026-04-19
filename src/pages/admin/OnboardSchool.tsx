@@ -16,15 +16,38 @@ const plans = [
 ];
 
 const OnboardSchool = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [password, setPassword] = useState(genPassword());
   const [plan, setPlan] = useState("growth");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [provisioned, setProvisioned] = useState(false);
 
   const handleName = (v: string) => {
     setName(v);
     if (!slugTouched) setSlug(slugify(v));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !slug.trim()) {
+      toast.error("School name and slug are required");
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
+  const provision = () => {
+    setProvisioned(true);
+    toast.success("School provisioned successfully");
+  };
+
+  const copy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied`);
   };
 
   return (
