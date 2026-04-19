@@ -3,6 +3,7 @@ import { Banknote, Wallet, AlertTriangle, Search, MoreHorizontal, X, Upload, Cre
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
+import { FeeMatrix } from "@/components/fees/FeeMatrix";
 
 const summary = [
   { label: "Total Billed", value: "₦6,050,000", icon: Banknote, accent: "from-accent to-primary", bg: "bg-accent/10 text-accent" },
@@ -66,7 +67,9 @@ const Fees = () => {
         ))}
       </div>
 
-      {/* Filters + table */}
+      {active === "Fee Structures" ? (
+        <div className="animate-fade-in"><FeeMatrix /></div>
+      ) : (
       <div className="rounded-2xl bg-card border border-border overflow-hidden animate-fade-in-up">
         <div className="flex flex-wrap gap-3 p-4 border-b border-border">
           <select className="h-10 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:border-accent">
@@ -143,6 +146,9 @@ const Fees = () => {
           </table>
         </div>
       </div>
+
+      </div>
+      )}
 
       {/* Record Payment Modal — premium redesign */}
       {modal && <RecordPaymentModal invoice={modal} onClose={() => setModal(null)} />}
