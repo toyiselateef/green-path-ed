@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 const metrics = [
   { label: "API p95", value: "142ms", sub: "across 4 regions", icon: Server, tone: "text-accent" },
-  { label: "Error rate", value: "0.04%", sub: "last 24h", icon: AlertTriangle, tone: "text-amber-500" },
+  { label: "Error rate", value: "0.04%", sub: "last 24h", icon: AlertTriangle, tone: "text-info" },
   { label: "Queue depth", value: "48", sub: "messages in flight", icon: Database, tone: "text-info" },
   { label: "Storage", value: "1.2 / 5 TB", sub: "24% used", icon: HardDrive, tone: "text-primary" },
 ];
@@ -126,7 +126,7 @@ const AdminHealth = () => {
                   {s.status === "Operational" ? (
                     <CheckCircle2 className="h-4 w-4 text-accent" />
                   ) : (
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <AlertTriangle className="h-4 w-4 text-info" />
                   )}
                   <span className="text-sm text-foreground">{s.name}</span>
                 </div>
