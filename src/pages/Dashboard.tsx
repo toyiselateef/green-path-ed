@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Users, GraduationCap, Banknote, AlertTriangle, ArrowUpRight, ArrowRight,
   UserPlus, Receipt, CalendarCheck, FileText, MoreHorizontal, TrendingUp,
-  Calendar, BookOpen, Trophy, PartyPopper, Beaker, Megaphone, Download,
+  Calendar, BookOpen, Trophy, PartyPopper, Beaker, Megaphone, Download, ChevronRight, ListTodo,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Badge } from "@/components/ui/badge";
@@ -207,6 +207,43 @@ const Dashboard = () => {
     </AppLayout>
   );
 };
+
+// ---------------- Pending Tasks ----------------
+const pendingItems = [
+  { dot: "bg-accent", text: "12 result entries pending — JSS2A Mathematics", href: "/results" },
+  { dot: "bg-warning", text: "4 fee invoices overdue", href: "/fees" },
+  { dot: "bg-destructive", text: "Attendance not marked today — SSS1A", href: "/attendance" },
+];
+
+function PendingTasks() {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 mb-6 animate-fade-in-up">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-warning/10 text-warning">
+            <ListTodo className="h-4 w-4" />
+          </span>
+          <div>
+            <h3 className="font-display text-base font-bold text-foreground">Pending Tasks</h3>
+            <p className="text-xs text-muted-foreground">Action items needing attention</p>
+          </div>
+        </div>
+        <span className="inline-flex rounded-full border border-warning/30 bg-warning/10 text-warning px-2.5 py-0.5 text-[11px] font-bold">{pendingItems.length}</span>
+      </div>
+      <ul className="space-y-2">
+        {pendingItems.map((p) => (
+          <li key={p.text}>
+            <Link to={p.href} className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 hover:bg-muted px-3.5 py-3 transition group">
+              <span className={`h-2 w-2 rounded-full ${p.dot}`} />
+              <span className="flex-1 text-sm text-foreground">{p.text}</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 group-hover:text-foreground transition" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 // ---------------- Academic Calendar ----------------
 const calendarEvents = [
