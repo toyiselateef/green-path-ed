@@ -1,13 +1,22 @@
 import { useState } from "react";
-import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check, FileText } from "lucide-react";
+import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check, FileText, Users, Copy, QrCode, Download, Send, AlertTriangle } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SchoolContentManager } from "@/components/content/SchoolContentManager";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+} from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const tabs = [
   { id: "school", label: "School Profile", icon: School },
   { id: "academic", label: "Academic Year", icon: Calendar },
   { id: "content", label: "School Content", icon: FileText },
+  { id: "parent-portal", label: "Parent Portal", icon: Users },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "billing", label: "Billing & Plan", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },

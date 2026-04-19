@@ -457,7 +457,7 @@ function RecordPaymentModal({ invoice, onClose }: { invoice: typeof invoices[0];
           <div className="flex gap-2">
             <button onClick={onClose} className="rounded-xl border border-border bg-card px-4 h-10 text-sm font-semibold hover:bg-muted transition">Cancel</button>
             <button
-              onClick={onClose}
+              onClick={() => { toast.success(`Payment of ${fmt(amount)} recorded for ${invoice.name}`); onClose(); }}
               className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand text-white px-5 h-10 text-sm font-semibold shadow-md-soft hover:shadow-glow transition"
             >
               <Check className="h-4 w-4" /> Confirm Payment
