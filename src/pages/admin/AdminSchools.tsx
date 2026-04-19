@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, Filter, Eye, Pause, CreditCard, MoreHorizontal, Plus } from "lucide-react";
+import { Search, Eye, Pause, CreditCard, MoreHorizontal, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { SchoolLogo } from "@/lib/schoolLogo";
 
 type Plan = "Free" | "Starter" | "Growth" | "Enterprise";
 
@@ -90,9 +91,7 @@ const AdminSchools = () => {
                 <tr key={s.slug} className="hover:bg-muted/30 transition">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-white shadow-sm">
-                        {s.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
-                      </span>
+                      <SchoolLogo name={s.name} slug={s.slug} size="sm" />
                       <span className="font-medium text-foreground">{s.name}</span>
                     </div>
                   </td>
