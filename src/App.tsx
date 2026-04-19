@@ -19,6 +19,12 @@ import Settings from "./pages/Settings.tsx";
 import Support from "./pages/Support.tsx";
 import ParentLogin from "./pages/parent/ParentLogin.tsx";
 import ParentDashboard from "./pages/parent/ParentDashboard.tsx";
+import SchoolContent from "./pages/SchoolContent.tsx";
+import FeeStructures from "./pages/FeeStructures.tsx";
+import AddStaff from "./pages/AddStaff.tsx";
+import AdminOverview from "./pages/admin/AdminOverview.tsx";
+import AdminSchools from "./pages/admin/AdminSchools.tsx";
+import OnboardSchool from "./pages/admin/OnboardSchool.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -44,8 +50,16 @@ const App = () => (
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/staff/new" element={<AddStaff />} />
+          <Route path="/content" element={<SchoolContent />} />
+          <Route path="/fee-structures" element={<FeeStructures />} />
           <Route path="/parent" element={<ParentLogin />} />
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
+          <Route path="/admin" element={<AdminOverview />} />
+          <Route path="/admin/schools" element={<AdminSchools />} />
+          <Route path="/admin/schools/new" element={<OnboardSchool />} />
+          <Route path="/admin/billing" element={<AdminOverview />} />
+          <Route path="/admin/health" element={<AdminOverview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
