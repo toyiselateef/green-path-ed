@@ -26,7 +26,7 @@ const payments = [
 const quickActions = [
   { label: "Add Student", icon: UserPlus, href: "/students/new", grad: "from-accent to-primary" },
   { label: "Record Payment", icon: Receipt, href: "/fees", grad: "from-primary to-primary-deep" },
-  { label: "Mark Attendance", icon: CalendarCheck, href: "/dashboard", grad: "from-info to-primary" },
+  { label: "Mark Attendance", icon: CalendarCheck, href: "/attendance", grad: "from-info to-primary" },
   { label: "Generate Reports", icon: FileText, href: "/report-cards", grad: "from-primary-glow to-accent" },
 ];
 
@@ -90,6 +90,8 @@ const Dashboard = () => {
 
       {tab === "overview" && (
       <div className="animate-fade-in">
+      {/* Pending tasks */}
+      <PendingTasks />
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         {kpis.map((k, i) => (
