@@ -265,7 +265,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   );
 }
 
-function Field({ label, type = "text", placeholder, required, icon: Icon }: { label: string; type?: string; placeholder?: string; required?: boolean; icon?: React.ElementType }) {
+function Field({ label, type = "text", placeholder, required, icon: Icon, value, onChange, error }: { label: string; type?: string; placeholder?: string; required?: boolean; icon?: React.ElementType; value?: string; onChange?: (v: string) => void; error?: string }) {
   return (
     <div>
       <label className="mb-1.5 block text-xs font-semibold text-foreground">
@@ -273,8 +273,15 @@ function Field({ label, type = "text", placeholder, required, icon: Icon }: { la
       </label>
       <div className="group relative">
         {Icon && <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />}
-        <input type={type} placeholder={placeholder} className={`h-12 w-full rounded-xl border border-input bg-background ${Icon ? "pl-10" : "pl-3.5"} pr-3 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition`} />
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+          className={`h-12 w-full rounded-xl border bg-background ${Icon ? "pl-10" : "pl-3.5"} pr-3 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:ring-4 focus:ring-accent/15 transition ${error ? "border-destructive focus:border-destructive" : "border-input focus:border-accent"}`}
+        />
       </div>
+      {error && <p className="mt-1 text-[11px] text-destructive font-medium">{error}</p>}
     </div>
   );
 }
