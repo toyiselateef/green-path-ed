@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check } from "lucide-react";
+import { School, Palette, Calendar, CreditCard, Bell, Shield, Globe, Upload, Check, FileText } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { SchoolContentManager } from "@/components/content/SchoolContentManager";
 
 const tabs = [
   { id: "school", label: "School Profile", icon: School },
   { id: "academic", label: "Academic Year", icon: Calendar },
+  { id: "content", label: "School Content", icon: FileText },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "billing", label: "Billing & Plan", icon: CreditCard },
   { id: "notifications", label: "Notifications", icon: Bell },
@@ -104,6 +106,8 @@ const Settings = () => {
               </div>
             </Panel>
           )}
+
+          {active === "content" && <SchoolContentManager />}
 
           {active === "branding" && (
             <Panel title="Brand Colors" desc="These colors appear on parent portal headers and report cards.">

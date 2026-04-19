@@ -40,11 +40,9 @@ const mainNav = [
 
 const academicNav = [
   { title: "Fees", url: "/fees", icon: Wallet },
-  { title: "Fee Structures", url: "/fee-structures", icon: Wallet },
   { title: "Results", url: "/results", icon: ClipboardList },
   { title: "Report Cards", url: "/report-cards", icon: FileText },
   { title: "Attendance", url: "/attendance", icon: CalendarCheck },
-  { title: "School Content", url: "/content", icon: FileText },
 ];
 
 export function AppSidebar() {
