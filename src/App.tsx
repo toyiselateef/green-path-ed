@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,8 +19,6 @@ import Settings from "./pages/Settings.tsx";
 import Support from "./pages/Support.tsx";
 import ParentLogin from "./pages/parent/ParentLogin.tsx";
 import ParentDashboard from "./pages/parent/ParentDashboard.tsx";
-import SchoolContent from "./pages/SchoolContent.tsx";
-import FeeStructures from "./pages/FeeStructures.tsx";
 import AddStaff from "./pages/AddStaff.tsx";
 import AdminOverview from "./pages/admin/AdminOverview.tsx";
 import AdminSchools from "./pages/admin/AdminSchools.tsx";
@@ -51,8 +49,8 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/support" element={<Support />} />
           <Route path="/staff/new" element={<AddStaff />} />
-          <Route path="/content" element={<SchoolContent />} />
-          <Route path="/fee-structures" element={<FeeStructures />} />
+          <Route path="/content" element={<Navigate to="/settings" replace />} />
+          <Route path="/fee-structures" element={<Navigate to="/fees" replace />} />
           <Route path="/parent" element={<ParentLogin />} />
           <Route path="/parent/dashboard" element={<ParentDashboard />} />
           <Route path="/admin" element={<AdminOverview />} />

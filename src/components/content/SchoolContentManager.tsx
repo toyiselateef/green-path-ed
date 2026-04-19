@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Plus, MoreHorizontal, Calendar, MapPin, Users, Bold, Italic, Link as LinkIcon, X, Image as ImageIcon, Megaphone } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/layout/PageHeader";
 
 type Tab = "announcements" | "events" | "notices" | "gallery" | "about";
 
@@ -33,41 +31,33 @@ const statusTone: Record<string, string> = {
   Scheduled: "badge-soft-amber",
 };
 
-const SchoolContent = () => {
+export function SchoolContentManager() {
   const [tab, setTab] = useState<Tab>("announcements");
   const [open, setOpen] = useState(false);
   const [schedule, setSchedule] = useState(false);
   const [whatsapp, setWhatsapp] = useState(true);
 
   return (
-    <AppLayout>
-      <PageHeader
-        title="School Content"
-        subtitle="Publish announcements, events and notices to parents, staff and your school website."
-        badge="CMS"
-        actions={
-          <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand px-4 h-10 text-sm font-semibold text-white shadow-md hover:shadow-glow transition-all">
-            <Plus className="h-4 w-4" /> New {tab === "events" ? "Event" : "Announcement"}
-          </button>
-        }
-      />
-
-      {/* Tab pills */}
-      <div className="flex flex-wrap gap-2 mb-6 p-1 rounded-2xl border border-border bg-card w-fit">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`px-4 h-9 rounded-xl text-xs font-semibold transition ${
-              tab === t.id ? "bg-gradient-brand text-white shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+    <div>
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
+        <div className="flex flex-wrap gap-2 p-1 rounded-2xl border border-border bg-card w-fit">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-4 h-9 rounded-xl text-xs font-semibold transition ${
+                tab === t.id ? "bg-gradient-brand text-white shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand px-4 h-10 text-sm font-semibold text-white shadow-md hover:shadow-glow transition-all">
+          <Plus className="h-4 w-4" /> New {tab === "events" ? "Event" : "Announcement"}
+        </button>
       </div>
 
-      {/* Announcements */}
       {tab === "announcements" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
           {announcements.map((a) => (
@@ -98,7 +88,6 @@ const SchoolContent = () => {
         </div>
       )}
 
-      {/* Events */}
       {tab === "events" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
           {events.map((e) => (
@@ -137,7 +126,6 @@ const SchoolContent = () => {
         </div>
       )}
 
-      {/* Slide-over editor */}
       {open && (
         <>
           <div className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 animate-fade-in" onClick={() => setOpen(false)} />
@@ -183,14 +171,14 @@ const SchoolContent = () => {
                 </div>
               </div>
 
-              <Toggle label="Schedule for later" desc="Publish at a specific date and time" checked={schedule} onChange={setSchedule} />
+              <ToggleRow label="Schedule for later" desc="Publish at a specific date and time" checked={schedule} onChange={setSchedule} />
               {schedule && (
                 <div className="grid grid-cols-2 gap-3 -mt-2">
                   <input type="date" className="h-11 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15" />
                   <input type="time" className="h-11 rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15" />
                 </div>
               )}
-              <Toggle label="Send via WhatsApp" desc="Growth plan — instant delivery to parent phones" checked={whatsapp} onChange={setWhatsapp} />
+              <ToggleRow label="Send via WhatsApp" desc="Growth plan — instant delivery to parent phones" checked={whatsapp} onChange={setWhatsapp} />
             </div>
 
             <footer className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted/30">
@@ -202,11 +190,11 @@ const SchoolContent = () => {
           </aside>
         </>
       )}
-    </AppLayout>
+    </div>
   );
-};
+}
 
-function Toggle({ label, desc, checked, onChange }: { label: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
+function ToggleRow({ label, desc, checked, onChange }: { label: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button type="button" onClick={() => onChange(!checked)} className="w-full flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3.5 text-left hover:border-accent/40 transition">
       <div>
@@ -219,5 +207,3 @@ function Toggle({ label, desc, checked, onChange }: { label: string; desc: strin
     </button>
   );
 }
-
-export default SchoolContent;

@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { Plus, ChevronDown, FileText, Sparkles, Trash2 } from "lucide-react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/layout/PageHeader";
+import { Plus, ChevronDown, FileText, Sparkles } from "lucide-react";
 
 const initialCategories = ["School Fees", "Development Levy", "PTA Levy", "Sports Levy", "Exam Fees", "Uniform"];
 const classes = ["JSS1A", "JSS1B", "JSS2A", "JSS2B", "JSS3A", "JSS3B", "SSS1A", "SSS1B", "SSS2A", "SSS2B", "SSS3A", "SSS3B"];
@@ -17,7 +15,7 @@ const seed: Record<string, Record<string, number>> = {
 
 const fmt = (n: number) => "₦" + n.toLocaleString();
 
-const FeeStructures = () => {
+export function FeeMatrix() {
   const [categories, setCategories] = useState(initialCategories);
   const [activeCat, setActiveCat] = useState(initialCategories[0]);
   const [data, setData] = useState(seed);
@@ -37,30 +35,22 @@ const FeeStructures = () => {
   const totalAmount = Object.values(data).reduce((sum, row) => sum + Object.values(row).reduce((s, v) => s + v, 0), 0);
 
   return (
-    <AppLayout>
-      <PageHeader
-        title="Fee Structures"
-        subtitle="Set how much each class pays for every fee category this term."
-        badge="Finance"
-        actions={
-          <>
-            <div className="relative">
-              <select className="h-10 rounded-xl border border-input bg-card pl-3.5 pr-10 text-sm font-medium focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition appearance-none">
-                <option>First Term — 2025/2026</option>
-                <option>Second Term — 2025/2026</option>
-                <option>Third Term — 2025/2026</option>
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-            <button className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand px-4 h-10 text-sm font-semibold text-white shadow-md hover:shadow-glow transition-all">
-              <Plus className="h-4 w-4" /> Add Structure
-            </button>
-          </>
-        }
-      />
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="relative">
+          <select className="h-10 rounded-xl border border-input bg-card pl-3.5 pr-10 text-sm font-medium focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition appearance-none">
+            <option>First Term — 2025/2026</option>
+            <option>Second Term — 2025/2026</option>
+            <option>Third Term — 2025/2026</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
+        <button className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-brand px-4 h-10 text-sm font-semibold text-white shadow-md hover:shadow-glow transition-all">
+          <Plus className="h-4 w-4" /> Add Structure
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-5">
-        {/* Categories sidebar */}
         <aside className="rounded-2xl border border-border bg-card p-3 h-fit">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground px-2 py-2">Fee Categories</p>
           <ul className="space-y-1">
@@ -100,7 +90,6 @@ const FeeStructures = () => {
           </div>
         </aside>
 
-        {/* Matrix */}
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div>
@@ -179,7 +168,6 @@ const FeeStructures = () => {
         </div>
       </div>
 
-      {/* Generate invoices CTA */}
       <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-brand text-white p-6 shadow-elegant">
         <div className="absolute inset-0 grid-pattern opacity-30" />
         <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-accent/30 blur-3xl" />
@@ -200,8 +188,6 @@ const FeeStructures = () => {
           </button>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
-};
-
-export default FeeStructures;
+}
