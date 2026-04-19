@@ -1,6 +1,7 @@
-import { Building2, Users, Wallet, Activity, ArrowUpRight, MoreHorizontal, Server, Database, HardDrive } from "lucide-react";
+import { Building2, Users, Wallet, Activity, ArrowUpRight, Server, Database, HardDrive } from "lucide-react";
 import { SuperAdminLayout } from "@/components/layout/SuperAdminLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { SchoolLogo } from "@/lib/schoolLogo";
 
 const kpis = [
   { label: "Total Schools", value: "240", delta: "+12 this month", icon: Building2, tone: "from-primary-deep to-primary" },
@@ -10,11 +11,11 @@ const kpis = [
 ];
 
 const signups = [
-  { name: "Bright Stars Academy", plan: "Growth", students: 412, joined: "2h ago", status: "Trial" },
-  { name: "Greenfield College", plan: "Enterprise", students: 1284, joined: "5h ago", status: "Active" },
-  { name: "Sunrise Montessori", plan: "Starter", students: 96, joined: "1d ago", status: "Active" },
-  { name: "Royal Heights School", plan: "Growth", students: 540, joined: "2d ago", status: "Trial" },
-  { name: "Premier Int'l", plan: "Free", students: 38, joined: "3d ago", status: "Suspended" },
+  { name: "Bright Stars Academy", slug: "bright-stars", plan: "Growth", students: 412, joined: "2h ago", status: "Trial" },
+  { name: "Greenfield College", slug: "greenfield", plan: "Enterprise", students: 1284, joined: "5h ago", status: "Active" },
+  { name: "Sunrise Montessori", slug: "sunrise", plan: "Starter", students: 96, joined: "1d ago", status: "Active" },
+  { name: "Royal Heights School", slug: "royal-heights", plan: "Growth", students: 540, joined: "2d ago", status: "Trial" },
+  { name: "Premier Int'l", slug: "premier-intl", plan: "Free", students: 38, joined: "3d ago", status: "Suspended" },
 ];
 
 const planTone: Record<string, string> = {
@@ -94,9 +95,7 @@ const AdminOverview = () => {
                   <tr key={s.name} className="hover:bg-muted/30 transition">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-brand text-xs font-bold text-white shadow-sm">
-                          {s.name.split(" ").map(w => w[0]).slice(0, 2).join("")}
-                        </span>
+                        <SchoolLogo name={s.name} slug={s.slug} size="sm" />
                         <span className="font-medium text-foreground">{s.name}</span>
                       </div>
                     </td>
