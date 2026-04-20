@@ -28,6 +28,7 @@ import OnboardSchool from "./pages/admin/OnboardSchool.tsx";
 import AdminBilling from "./pages/admin/AdminBilling.tsx";
 import AdminHealth from "./pages/admin/AdminHealth.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import SitePage from "./pages/sites/SitePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,9 @@ const App = () => (
           <Route path="/admin/schools/new" element={<OnboardSchool />} />
           <Route path="/admin/billing" element={<AdminBilling />} />
           <Route path="/admin/health" element={<AdminHealth />} />
+          {/* School public websites — must come AFTER all known app routes. */}
+          <Route path="/:slug" element={<SitePage />} />
+          <Route path="/:slug/*" element={<SitePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
