@@ -9,19 +9,19 @@ import NotFound from "@/pages/NotFound";
 export default function SitePage() {
   const { slug = "", "*": rest = "" } = useParams();
   const site = getSite(slug);
-  if (!site) return <NotFound />;
-
   const pageSlug = rest || "";
-  const page = site.pages.find((p) => p.slug === pageSlug);
-  if (!page) return <NotFound />;
+  const page = site?.pages.find((p) => p.slug === pageSlug);
 
   useEffect(() => {
+    if (!site || !page) return;
     const prev = document.title;
     document.title = `${page.title} · ${site.identity.name}`;
     return () => {
       document.title = prev;
     };
-  }, [page.title, site.identity.name]);
+  }, [page, site]);
+
+  if (!site || !page) return <NotFound />;
 
   return (
     <SiteShell site={site}>
